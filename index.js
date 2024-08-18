@@ -27,14 +27,14 @@ const client = new MongoClient(uri, {
 });
 
 const verifyJWT = (req, res, next) => {
-    console.log("hitting verify JWT");
-    console.log(req.headers.authorization);
+    // console.log("hitting verify JWT");
+    // console.log(req.headers.authorization);
     const authorization = req.headers.authorization;
     if (!authorization) {
         return res.status(401).send({ error: true, message: "unauthorized access" })
     }
     const token = authorization.split(' ')[1];
-    console.log('token varifyed', token);
+    // console.log('token varifyed', token);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decoded) => {
         if (error) {
             return res.status(403).send({ error: true, message: "unauthorized access" })
@@ -53,7 +53,7 @@ async function run() {
         //jwt
         app.post('/jwt', (req, res) => {
             const user = req.body;
-            console.log(user);
+            // console.log(user);
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res.send({ token });
         })
@@ -61,8 +61,22 @@ async function run() {
 
 
         app.get('/serviecs', async (req, res) => {
-            const filter = serviceCollection.find();
-            const result = await filter.toArray()
+
+            let src = req.query.search
+            // const query = {}
+            const query = { title: { $regex: src, $options: 'i' } }
+            // const query = { price: { $gte: 70, $lte: 150 } }
+
+            let asc = req.query.sort;
+            // console.log(src);
+
+            const options = {
+                sort: { "price": asc === 'asc' ? 1 : -1 }
+            }
+
+
+
+            const result = await serviceCollection.find(query, options).toArray()
             // console.log(result);
             res.send(result)
         })
@@ -141,5 +155,5 @@ run().catch(console.dir);
 
 
 app.listen(port, () => {
-    console.log("port no mirza is", port);
+    console.log("Car doctor is running", port);
 })
