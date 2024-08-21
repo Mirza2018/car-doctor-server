@@ -10,7 +10,7 @@ app.use(cors())
 app.use(express.json())
 
 app.get('/', (req, res) => {
-    res.send("Server is one Mirza")
+    res.send("Car-doctor server is On")
 })
 
 
